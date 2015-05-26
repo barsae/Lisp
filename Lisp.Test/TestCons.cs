@@ -6,12 +6,12 @@ namespace Lisp.Test {
     public class TestCons {
         [TestMethod]
         public void Reverse_Works() {
-            var list = new Cons(new Symbol("a"),
-                       new Cons(new Symbol("b"),
-                       new Cons(new Symbol("c"),
+            var list = new Cell(new Symbol("a"),
+                       new Cell(new Symbol("b"),
+                       new Cell(new Symbol("c"),
                        null)));
 
-            list = Cons.ReverseInPlace(list);
+            list = Cell.ReverseInPlace(list);
 
             Assert.AreEqual("(c b a)", list.ToString());
         }

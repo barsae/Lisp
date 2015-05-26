@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Lisp {
     public class StandardLibrary {
+        /// <summary>
+        /// This creates a new context and populates it with the 7 core callables, and the "defun" macro
+        /// </summary>
         public static Context NewContext() {
             var context = new Context();
 
@@ -14,7 +17,7 @@ namespace Lisp {
             context.Variables["eq"] = new Eq();
             context.Variables["car"] = new Car();
             context.Variables["cdr"] = new Cdr();
-            context.Variables["cons"] = new ConsFunc();
+            context.Variables["cons"] = new Cons();
             context.Variables["cond"] = new Cond();
             context.Variables["defun"] = new Defun();
 
@@ -23,9 +26,12 @@ namespace Lisp {
     }
 
     public class Quote : Macro {
+        /// <summary>
+        /// Return the argument unevaluated
+        /// </summary>
         public override LispObject Call(Context context, List<LispObject> args) {
             if (args.Count != 1) {
-                throw new Exception("quote expects exactly one argument");
+                throw new LispException("quote expects exactly one argument");
             }
 
             return args[0];
@@ -33,9 +39,12 @@ namespace Lisp {
     }
 
     public class Eq : Function {
+        /// <summary>
+        /// Return whether or not both arguments are symbols and have the same value
+        /// </summary>
         public override LispObject Call(Context context, List<LispObject> args) {
             if (args.Count != 2) {
-                throw new Exception("eq expects exactly two arguments");
+                throw new LispException("eq expects exactly two arguments");
             }
 
             var one = args[0] as Symbol;
@@ -50,53 +59,68 @@ namespace Lisp {
     }
 
     public class Atom : Function {
+        /// <summary>
+        /// Return true if the argument is not a list
+        /// </summary>
         public override LispObject Call(Context context, List<LispObject> args) {
             if (args.Count != 1) {
-                throw new Exception("atom expects exactly one argument");
+                throw new LispException("atom expects exactly one argument");
             }
 
-            return LispObject.FromBool((args[0] as Cons) == null);
+            return LispObject.FromBool((args[0] as Cell) == null);
         }
     }
 
     public class Car : Function {
+        /// <summary>
+        /// Return return the "car" property of a cons
+        /// </summary>
         public override LispObject Call(Context context, List<LispObject> args) {
             if (args.Count != 1) {
-                throw new Exception("car expects exactly one argument");
+                throw new LispException("car expects exactly one argument");
             }
 
-            return (args[0] as Cons).Car;
+            return (args[0] as Cell).Car;
         }
     }
 
     public class Cdr : Function {
+        /// <summary>
+        /// Return return the "cdr" property of a cons
+        /// </summary>
         public override LispObject Call(Context context, List<LispObject> args) {
             if (args.Count != 1) {
-                throw new Exception("cdr expects exactly one argument");
+                throw new LispException("cdr expects exactly one argument");
             }
 
-            return (args[0] as Cons).Cdr;
+            return (args[0] as Cell).Cdr;
         }
     }
 
-    public class ConsFunc : Function {
+    public class Cons : Function {
+        /// <summary>
+        /// Create a cell with the car and cdr set from the arguments
+        /// </summary>
         public override LispObject Call(Context context, List<LispObject> args) {
             if (args.Count != 2) {
-                throw new Exception("cons expects exactly two arguments");
+                throw new LispException("cons expects exactly two arguments");
             }
 
-            return new Cons(args[0], args[1]);
+            return new Cell(args[0], args[1]);
         }
     }
 
     public class Cond : Macro {
+        /// <summary>
+        /// Execute a sequence of predicates until one is true, and then execute the associated body
+        /// </summary>
         public override LispObject Call(Context context, List<LispObject> args) {
-            foreach (Cons arg in args) {
+            foreach (Cell arg in args) {
                 var predicate = arg.Car;
                 var result = arg.Cadr;
 
-                if (LispObject.ToBool(Evaluator.Evaluate(context, predicate))) {
-                    return Evaluator.Evaluate(context, result);
+                if (LispObject.ToBool(context.Evaluate(predicate))) {
+                    return context.Evaluate(result);
                 }
             }
 
@@ -105,13 +129,16 @@ namespace Lisp {
     }
 
     public class Defun : Macro {
+        /// <summary>
+        /// Create a lambda and associate it in the current context with the specified name
+        /// </summary>
         public override LispObject Call(Context context, List<LispObject> args) {
             if (args.Count != 3) {
-                throw new Exception("defun expects exactly three arguments");
+                throw new LispException("defun expects exactly three arguments");
             }
 
             var name = (args[0] as Symbol).Value;
-            var arguments = ((Cons)args[1]).Select(arg => ((Symbol)arg).Value)
+            var arguments = ((Cell)args[1]).Select(arg => ((Symbol)arg).Value)
                                            .ToList();
             var body = args[2];
 

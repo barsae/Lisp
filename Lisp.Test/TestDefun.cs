@@ -11,10 +11,10 @@ namespace Lisp.Test {
             var lisp = Reader.ReadString("(defun test (a) a)");
             var call = Reader.ReadString("(test 'b)");
 
-            var lambda = Evaluator.Evaluate(context, lisp);
+            var lambda = context.Evaluate(lisp);
             Assert.IsNotNull(lambda as Lambda);
 
-            var result = Evaluator.Evaluate(context, call);
+            var result = context.Evaluate(call);
             Assert.AreEqual("b", (result as Symbol).Value);
         }
 
@@ -24,10 +24,10 @@ namespace Lisp.Test {
             var lisp = Reader.ReadString("(defun null (x) (eq x '()))");
             var call = Reader.ReadString("(null 'a)");
 
-            var lambda = Evaluator.Evaluate(context, lisp);
+            var lambda = context.Evaluate(lisp);
             Assert.IsNotNull(lambda as Lambda);
 
-            var result = Evaluator.Evaluate(context, call);
+            var result = context.Evaluate(call);
             Assert.IsNull(result);
         }
 
@@ -37,10 +37,10 @@ namespace Lisp.Test {
             var lisp = Reader.ReadString("(defun null (x) (eq x '()))");
             var call = Reader.ReadString("(null '())");
 
-            var lambda = Evaluator.Evaluate(context, lisp);
+            var lambda = context.Evaluate(lisp);
             Assert.IsNotNull(lambda as Lambda);
 
-            var result = Evaluator.Evaluate(context, call);
+            var result = context.Evaluate(call);
             Assert.AreEqual("t", (result as Symbol).Value);
         }
     }

@@ -6,17 +6,30 @@ using System.Threading.Tasks;
 
 namespace Lisp {
     public class Program {
+        /// <summary>
+        /// This program interprets and executes the eval.lisp code, and then drops to a kind of REPL
+        /// </summary>
         public static void Main(string[] args) {
             var context = StandardLibrary.NewContext();
 
-            foreach (var expression in Reader.ReadFile("eval.lisp")) {
-                Console.WriteLine(expression);
-                Evaluator.Evaluate(context, expression);
+            try {
+                foreach (var expression in Reader.ReadFile("eval.lisp")) {
+                    Console.WriteLine(expression);
+                    context.Evaluate(expression);
+                }
+            } catch (LispException ex) {
+                Console.WriteLine("Error while executing eval.lisp", ex);
             }
 
-            var lisp = Reader.ReadString("(eval. '(cdr '(some list)) '())");
-            Console.WriteLine(lisp);
-            Console.WriteLine(Evaluator.Evaluate(context, lisp));
+            var line = Console.ReadLine();
+            while (line != "exit") {
+                try {
+                    Console.WriteLine(context.Evaluate(line));
+                } catch (LispException ex) {
+                    Console.WriteLine(ex);
+                }
+                line = Console.ReadLine();
+            }
 
             Console.WriteLine("Done");
             Console.ReadKey(true);

@@ -6,32 +6,33 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Lisp {
-    public class Cons : LispObject, IEnumerable<LispObject> {
+    public class Cell : LispObject, IEnumerable<LispObject> {
         public LispObject Car { get; set; }
         public LispObject Cdr { get; set; }
 
         public LispObject Cadr {
             get {
-                return ((Cons)Cdr).Car;
+                return ((Cell)Cdr).Car;
             }
         }
 
-        public Cons(LispObject car, LispObject cdr) {
+        public Cell(LispObject car, LispObject cdr) {
             this.Car = car;
             this.Cdr = cdr;
         }
 
         /// <summary>
-        /// Reverses a list without allocating any new conses.  Note: you need to assign this back to the original variable to get the new head of list reference.
+        /// Reverses a list without allocating any new conses.
+        /// Note: you need to assign this back to the original variable to get the new head of list reference.
         /// </summary>
-        public static Cons ReverseInPlace(Cons list) {
-            Cons previous = null;
+        public static Cell ReverseInPlace(Cell list) {
+            Cell previous = null;
 
             while (list != null) {
-                var cdr = list.Cdr as Cons;
+                var cdr = list.Cdr as Cell;
 
                 if (list.Cdr != null && cdr == null) {
-                    throw new Exception("Can't reverse list that has non-cons element in cdr");
+                    throw new LispException("Can't reverse list that has non-cons element in cdr");
                 }
 
                 list.Cdr = previous;
@@ -47,10 +48,10 @@ namespace Lisp {
             while (current != null) {
                 yield return current.Car;
 
-                if (current.Cdr != null && !(current.Cdr is Cons)) {
-                    throw new Exception("Expected list during iteration");
+                if (current.Cdr != null && !(current.Cdr is Cell)) {
+                    throw new LispException("Expected list during iteration");
                 }
-                current = current.Cdr as Cons;
+                current = current.Cdr as Cell;
             }
         }
 
@@ -78,9 +79,9 @@ namespace Lisp {
                 sb.Append(LispObject.ToString(next.Car));
 
                 // Safely advance to next element
-                var cdr = next.Cdr as Cons;
+                var cdr = next.Cdr as Cell;
                 if (next.Cdr != null && cdr == null) {
-                    throw new Exception("Can't ToString list that has non-cons element in cdr");
+                    throw new LispException("Can't ToString list that has non-cons element in cdr");
                 }
                 next = cdr;
 
@@ -93,9 +94,9 @@ namespace Lisp {
         }
 
         public static bool IsQuote(LispObject obj) {
-            var cons = obj as Cons;
-            if (cons != null) {
-                var symbol = cons.Car as Symbol;
+            var cell = obj as Cell;
+            if (cell != null) {
+                var symbol = cell.Car as Symbol;
                 if (symbol != null) {
                     return symbol.Value == "quote";
                 }

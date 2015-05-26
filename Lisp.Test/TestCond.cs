@@ -9,7 +9,7 @@ namespace Lisp.Test {
             var context = StandardLibrary.NewContext();
             var lisp = Reader.ReadString("(cond ('t 'a) ('() 'b))");
 
-            var result = Evaluator.Evaluate(context, lisp);
+            var result = context.Evaluate(lisp);
             Assert.AreEqual("a", (result as Symbol).Value);
         }
     }

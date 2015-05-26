@@ -42,11 +42,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Cons.cs" />
+    <Compile Include="Cell.cs" />
     <Compile Include="Context.cs" />
-    <Compile Include="Evaluator.cs" />
     <Compile Include="Function.cs" />
     <Compile Include="Lambda.cs" />
+    <Compile Include="LispException.cs" />
     <Compile Include="LispObject.cs" />
     <Compile Include="Macro.cs" />
     <Compile Include="Reader.cs" />

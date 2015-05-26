@@ -48,8 +48,8 @@ namespace Lisp {
             // Eat the "'" character
             stream.Read();
 
-            return new Cons(new Symbol("quote"),
-                   new Cons(Read(stream),
+            return new Cell(new Symbol("quote"),
+                   new Cell(Read(stream),
                    null));
         }
 
@@ -68,25 +68,25 @@ namespace Lisp {
         }
 
         private static LispObject ReadList(StreamReader stream) {
-            Cons list = null;
+            Cell list = null;
 
             // Eat the initial ( character
             stream.Read();
 
             ReadWhiteSpace(stream);
             while (!stream.EndOfStream && stream.Peek() != ')') {
-                list = new Cons(Read(stream), list);
+                list = new Cell(Read(stream), list);
                 ReadWhiteSpace(stream);
             }
 
             if (stream.EndOfStream) {
-                throw new EndOfStreamException("Failed to find terminating ')' character");
+                throw new LispException("Failed to find terminating ')' character");
             }
 
             // Eat the trailing ) character
             stream.Read();
 
-            return Cons.ReverseInPlace(list);
+            return Cell.ReverseInPlace(list);
         }
 
         private static void ReadWhiteSpace(StreamReader stream) {

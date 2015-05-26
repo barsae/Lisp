@@ -10,7 +10,7 @@ namespace Lisp.Test {
             var context = StandardLibrary.NewContext();
             var lisp = Reader.ReadString("(eq 'a 'a)");
 
-            Assert.AreEqual(Evaluator.Evaluate(context, lisp), LispObject.T);
+            Assert.AreEqual(context.Evaluate(lisp), LispObject.T);
         }
 
         [TestMethod]
@@ -18,7 +18,7 @@ namespace Lisp.Test {
             var context = StandardLibrary.NewContext();
             var lisp = Reader.ReadString("(eq 'a 'b)");
 
-            Assert.AreEqual(Evaluator.Evaluate(context, lisp), null);
+            Assert.AreEqual(context.Evaluate(lisp), null);
         }
     }
 }
